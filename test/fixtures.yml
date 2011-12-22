@@ -214,6 +214,7 @@ payone:
   password: PortalID
   aid: SubAccountID
   key: Secret Key
+  reference: ReferenceNumber
 
 # You can use either your API PEM file or API signature with PayPal.
 paypal_certificate:
