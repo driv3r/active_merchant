@@ -30,7 +30,7 @@ module ActiveMerchant #:nodoc:
       #  :login     => "mid"        # Merchant ID
       #  :password  => "portalid"   # Payment portal ID
       def initialize(options = {})
-        requires!(options, :login, :password, :key, :aid, :reference)
+        requires!(options, :login, :password, :key, :aid)
         @options = options
         super
       end
@@ -73,7 +73,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_reference(post, options)
-        post[:reference] = options[:reference] if options[:reference]
+        post[:reference] = options[:reference]
       end
 
       def add_customer_data(post, options)
@@ -123,7 +123,7 @@ module ActiveMerchant #:nodoc:
       def add_creditcard(post, creditcard, options)
         post[:clearingtype] = 'cc'
         post[:cardpan]  = creditcard.number
-        post[:cardtype] = CARDTYPE[creditcard.type]
+        post[:cardtype] = CARDTYPE[creditcard.type.to_sym]
         post[:cardexpiredate ]  = expdate(creditcard)
         post[:cardcvc2] = creditcard.verification_value if creditcard.verification_value?
         post[:firstname] = creditcard.first_name
@@ -187,7 +187,7 @@ module ActiveMerchant #:nodoc:
         year  = sprintf("%.4i", creditcard.year)
         month = sprintf("%.2i", creditcard.month)
 
-        "#{month}#{year[-2..-1]}"
+        "#{year[-2..-1]}#{month}"
       end
     end
   end

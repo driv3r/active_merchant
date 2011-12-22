@@ -8,12 +8,13 @@ class RemotePayoneTest < Test::Unit::TestCase
 
     @amount = 100
     @credit_card = credit_card('4000100011112224')
-    @declined_card = credit_card('4000300011112220')
+    @declined_card = credit_card('1111111111111111')
 
     @options = {
       :order_id => '1',
       :billing_address => address,
-      :description => 'Store Purchase'
+      :description => 'Store Purchase',
+      :reference => SecureRandom.random_number(1000000)
     }
   end
 
@@ -33,7 +34,7 @@ class RemotePayoneTest < Test::Unit::TestCase
     amount = @amount
     assert auth = @gateway.authorize(amount, @credit_card, @options)
     assert_success auth
-    assert_equal 'Success', auth.message
+    assert_equal 'This transaction has been approved', auth.message
     assert auth.authorization
     assert capture = @gateway.capture(amount, auth.authorization)
     assert_success capture
@@ -50,7 +51,8 @@ class RemotePayoneTest < Test::Unit::TestCase
                 :login => '',
                 :password => '',
                 :aid => '',
-                :key => ''
+                :key => '',
+                :reference => ''
               )
     assert response = gateway.purchase(@amount, @credit_card, @options)
     assert_failure response
