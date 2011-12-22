@@ -204,10 +204,16 @@ payflow_uk:
 pay_junction:
   login: 'pj-ql-01'
   password: 'pj-ql-01p'
-  
+
 payment_express:
   login: LOGIN
   password: PASSWORD
+
+payone:
+  login: MerchantID
+  password: PortalID
+  aid: SubAccountID
+  key: Secret Key
 
 # You can use either your API PEM file or API signature with PayPal.
 paypal_certificate:
