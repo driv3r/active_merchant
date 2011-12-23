@@ -50,7 +50,7 @@ class RemotePayoneTest < Test::Unit::TestCase
     gateway = PayoneGateway.new(
                 :login => '',
                 :password => '',
-                :aid => '',
+                :sub_account_id => '',
                 :key => '',
                 :reference => ''
               )

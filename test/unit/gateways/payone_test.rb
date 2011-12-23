@@ -1,12 +1,12 @@
 require 'test_helper'
-require 'pry'
+
 class PayoneTest < Test::Unit::TestCase
   def setup
     @gateway = PayoneGateway.new(
                  :login => '66699',
                  :password => '666999',
                  :key => 'some secret text',
-                 :aid => '555',
+                 :sub_account_id => '555',
                  :reference => "someref"
                )
 

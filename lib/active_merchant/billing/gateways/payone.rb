@@ -30,7 +30,7 @@ module ActiveMerchant #:nodoc:
       #  :login     => "mid"        # Merchant ID
       #  :password  => "portalid"   # Payment portal ID
       def initialize(options = {})
-        requires!(options, :login, :password, :key, :aid)
+        requires!(options, :login, :password, :sub_account_id, :key)
         @options = options
         super
       end
@@ -168,7 +168,7 @@ module ActiveMerchant #:nodoc:
         post[:portalid]  = @options[:password]
         post[:mid]       = @options[:login]
         post[:key]       = Digest::MD5.hexdigest(@options[:key])
-        post[:aid]       = @options[:aid]
+        post[:aid]       = @options[:sub_account_id]
         post[:mode]      = test? ? 'test' : 'live'
         post[:encoding]  = 'UTF-8'
 

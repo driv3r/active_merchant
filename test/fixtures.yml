@@ -212,7 +212,7 @@ payment_express:
 payone:
   login: MerchantID
   password: PortalID
-  aid: SubAccountID
+  sub_account_id: SubAccountID
   key: Secret Key
 
 # You can use either your API PEM file or API signature with PayPal.
