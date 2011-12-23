@@ -3,10 +3,10 @@ require 'digest/md5'
 module ActiveMerchant #:nodoc:
   module Billing #:nodoc:
     class PayoneGateway < Gateway
-
-      URL = 'https://api.pay1.de/post-gateway/'
-
-      CARDTYPE = {
+      API_VERSION    = '2.5'
+      URL            = 'https://api.pay1.de/post-gateway/'
+      ECOMMERCE_MODE = ['internet', '3dsecure', 'moto']
+      CARDTYPE       = {
         :visa => 'V', :master => 'M', :jsb => 'J', :american_express => 'A',
         :discover => 'C', :maestro => 'O', :diners_club => 'D'
       }
@@ -73,7 +73,7 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_reference(post, options)
-        post[:reference] = options[:reference]
+        post[:reference] = options[:order_id]
       end
 
       def add_customer_data(post, options)
@@ -82,20 +82,23 @@ module ActiveMerchant #:nodoc:
         end
 
         if options.has_key? :ip
-          post[:ipaddress] = options[:ip]
+          post[:ip] = options[:ip]
         end
       end
 
       def add_address(post, creditcard, options)
         if address = options[:billing_address] || options[:address]
-          post[:address1]    = address[:address1].to_s
-          post[:address2]    = address[:address2].to_s unless address[:address2].blank?
-          post[:company]    = address[:company].to_s
-          post[:phone]      = address[:phone].to_s
-          post[:zip]        = address[:zip].to_s
-          post[:city]       = address[:city].to_s
-          post[:country]    = address[:country].to_s # must be Country ISO code
-          post[:state]      = address[:state].blank?  ? 'n/a' : address[:state]
+          post[:street]          = address[:address1].to_s
+          post[:addressaddition] = address[:address2].to_s unless address[:address2].blank?
+          post[:company]         = address[:company].to_s
+          post[:telephonenumber] = address[:phone].to_s
+          post[:zip]             = address[:zip].to_s
+          post[:city]            = address[:city].to_s
+          post[:country]         = address[:country].to_s # must be Country ISO code
+
+          if ["US", "CA"].include?(address[:country]) and !address[:state].blank?
+            post[:state]      = address[:state]
+          end
         end
       end
 
@@ -172,7 +175,11 @@ module ActiveMerchant #:nodoc:
         post[:key]       = Digest::MD5.hexdigest(@options[:key])
         post[:aid]       = @options[:sub_account_id]
         post[:mode]      = test? ? 'test' : 'live'
-        post[:encoding]  = 'UTF-8'
+        post[:encoding]  = @options[:encoding] ? @options[:encoding] : 'UTF-8'
+
+        if @options[:ecommercemode] and ECOMMERCE_MODE.include? @options[:ecommercemode]
+          post[:ecommercemode] = @options[:ecommercemode]
+        end
 
         request = post.merge(parameters).map {|key,value| "#{key}=#{CGI.escape(value.to_s)}"}.join("&")
         request

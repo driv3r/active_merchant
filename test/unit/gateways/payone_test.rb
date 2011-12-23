@@ -6,15 +6,14 @@ class PayoneTest < Test::Unit::TestCase
                  :login => '66699',
                  :password => '666999',
                  :key => 'some secret text',
-                 :sub_account_id => '555',
-                 :reference => "someref"
+                 :sub_account_id => '555'
                )
 
     @credit_card = credit_card
     @amount = 100
 
     @options = {
-      :order_id => '1',
+      :order_id => SecureRandom.random_number(1000000),
       :billing_address => address,
       :description => 'Store Purchase'
     }

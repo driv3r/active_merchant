@@ -11,10 +11,9 @@ class RemotePayoneTest < Test::Unit::TestCase
     @declined_card = credit_card('1111111111111111')
 
     @options = {
-      :order_id => '1',
+      :order_id => SecureRandom.random_number(1000000),
       :billing_address => address,
-      :description => 'Store Purchase',
-      :reference => SecureRandom.random_number(1000000)
+      :description => 'Store Purchase'
     }
   end
 
