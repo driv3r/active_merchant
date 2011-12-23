@@ -121,9 +121,11 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_creditcard(post, creditcard, options)
+        card_type = creditcard.brand || creditcard.type
+
         post[:clearingtype] = 'cc'
         post[:cardpan]  = creditcard.number
-        post[:cardtype] = CARDTYPE[creditcard.type.to_sym]
+        post[:cardtype] = CARDTYPE[card_type.to_sym]
         post[:cardexpiredate ]  = expdate(creditcard)
         post[:cardcvc2] = creditcard.verification_value if creditcard.verification_value?
         post[:firstname] = creditcard.first_name
