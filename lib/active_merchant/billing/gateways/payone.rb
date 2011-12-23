@@ -10,6 +10,13 @@ module ActiveMerchant #:nodoc:
         :visa => 'V', :master => 'M', :jsb => 'J', :american_express => 'A',
         :discover => 'C', :maestro => 'O', :diners_club => 'D'
       }
+      AVS_MESSAGES   = {
+        "A" => "House number is ok, postal code is not",
+        "F" => "House and postal code are ok",
+        "N" => "Neither a house number or postal code are ok",
+        "U" => "Request is not supported",
+        "Z" => "Street number is not ok, but postal code is ok"
+      }
 
       # The card types supported by the payment gateway
       self.supported_cardtypes = [
@@ -143,6 +150,14 @@ module ActiveMerchant #:nodoc:
           response[key] = val
         end
 
+        unless response["protect_result_avs"].blank?
+          avs_code = response["protect_result_avs"]
+          response[:parsed_avs][:code] = avs_code
+          response[:parsed_avs][:message] = AVS_MESSAGES[avs_code] if AVS_MESSAGES.has_key? avs_code
+          response[:parsed_avs][:street_match] = ["A","F"].include? avs_code
+          response[:parsed_avs][:postal_match] = ["Z","F"].include? avs_code
+        end
+
         response
       end
 
@@ -155,7 +170,7 @@ module ActiveMerchant #:nodoc:
           :authorization => response["txid"],
           :test => test?,
           :cvv_result => response["cvvresponse"],
-          :avs_result => { :code => response["avsresponse"] }
+          :avs_result => response["parsed_avs"]
         )
       end
 
