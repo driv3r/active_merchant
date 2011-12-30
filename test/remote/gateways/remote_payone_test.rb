@@ -50,12 +50,12 @@ class RemotePayoneTest < Test::Unit::TestCase
     @options[:sequencenumber] = 2
 
     assert auth = @gateway.authorize(@amount, @credit_card, @options)
-    assert_success auth
     assert auth.authorization
 
     assert capture = @gateway.capture(@amount, auth.authorization)
-    assert_success capture
     assert capture.authorization
+
+    sleep 300
 
     assert refund = @gateway.refund(@refund_amount, capture.authorization, @options)
     assert_success refund
@@ -68,12 +68,15 @@ class RemotePayoneTest < Test::Unit::TestCase
     @options[:sequencenumber] = 1
 
     assert purchase = @gateway.purchase(@amount, @credit_card, @options)
-    assert_success purchase
     assert purchase.authorization
+
+    sleep 300
 
     assert refund = @gateway.refund(@refund_amount, purchase.authorization, @options)
     assert_success refund
     assert refund.authorization
+
+    y refund.inspect
 
     assert_equal 'This transaction has been approved', refund.message
   end
@@ -82,7 +85,6 @@ class RemotePayoneTest < Test::Unit::TestCase
     @options[:sequencenumber] = 1
 
     assert purchase = @gateway.purchase(@amount, @credit_card, @options)
-    assert_success purchase
     assert purchase.authorization
 
     assert refund = @gateway.refund(@refund_amount*2, purchase.authorization, @options)

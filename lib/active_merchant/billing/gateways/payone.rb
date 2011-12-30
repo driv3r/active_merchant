@@ -51,7 +51,7 @@ module ActiveMerchant #:nodoc:
         add_customer_data(post, options)
         add_amount(post, money, options)
 
-        commit('preauthorization', money, post)
+        commit('preauthorization', post)
       end
 
       def purchase(money, creditcard, options = {})
@@ -63,14 +63,29 @@ module ActiveMerchant #:nodoc:
         add_customer_data(post, options)
         add_amount(post, money, options)
 
-        commit('authorization', money, post)
+        commit('authorization', post)
       end
 
       def capture(money, authorization, options = {})
         post = {}
         add_authorization(post, authorization)
         add_amount(post, money, options)
-        commit('capture', money, post)
+        commit('capture', post)
+      end
+
+      def refund(money, authorization, options = {})
+        post = {}
+
+        add_amount(post, money, options)
+        add_sequencenumber(post, options)
+        add_authorization(post, authorization)
+
+        commit('refund', post)
+      end
+
+      def credit(money, authorization, options = {})
+        deprecated CREDIT_DEPRECATION_MESSAGE
+        refund(money, authorization, options)
       end
 
       private
@@ -81,6 +96,10 @@ module ActiveMerchant #:nodoc:
 
       def add_reference(post, options)
         post[:reference] = options[:order_id]
+      end
+
+      def add_sequencenumber(post, options)
+        post[:sequencenumber] = options[:sequencenumber]
       end
 
       def add_customer_data(post, options)
@@ -161,7 +180,7 @@ module ActiveMerchant #:nodoc:
         response
       end
 
-      def commit(action, money, parameters)
+      def commit(action, parameters)
         parameters[:request] = action
 
         response = parse( ssl_post(URL, post_data(action, parameters)) )
