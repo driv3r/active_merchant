@@ -31,6 +31,19 @@ class PayoneTest < Test::Unit::TestCase
     assert response.test?
   end
 
+  def test_successful_refund
+    @gateway.expects(:ssl_post).returns(successful_purchase_response)
+    @options[:sequencenumber] = 2
+
+    assert response = @gateway.refund(@amount, "121212121212", @options)
+    assert_instance_of Response, response
+    assert_success response
+
+    # Replace with authorization number from the successful response
+    assert_equal '121212121212', response.authorization
+    assert response.test?
+  end
+
   def test_unsuccessful_request
     @gateway.expects(:ssl_post).returns(failed_purchase_response)
 
