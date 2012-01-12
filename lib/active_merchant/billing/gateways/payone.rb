@@ -76,7 +76,7 @@ module ActiveMerchant #:nodoc:
       def refund(money, authorization, options = {})
         post = {}
 
-        add_amount(post, money, options)
+        add_refund_amount(post, money, options)
         add_sequencenumber(post, options)
         add_authorization(post, authorization)
 
@@ -134,6 +134,11 @@ module ActiveMerchant #:nodoc:
       def add_amount(post, money, options)
         post[:amount]  = amount(money) if money
         post[:currency] = options[:currency] || currency(money)
+      end
+
+      def add_refund_amount(post, money, options)
+        add_amount(post, money, options)
+        post[:amount] = "-#{post[:amount]}" unless post[:amount] =~ /\A\-.*/
       end
 
       #elv: Debit payment
