@@ -61,7 +61,7 @@ class PayoneTest < Test::Unit::TestCase
     @gateway.expects(:ssl_post).returns(failed_purchase_response)
     @options[:clearingtype] = 'elv'
 
-    assert response = @gateway.purchase(@amount, @credit_card, @options)
+    assert response = @gateway.purchase(@amount, @direct_debit, @options)
     assert_failure response
     assert response.test?
   end

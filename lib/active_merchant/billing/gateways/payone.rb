@@ -148,9 +148,16 @@ module ActiveMerchant #:nodoc:
       #sb: Online Bank Transfer
       #cod: Cash on Delivery
       #wlt: e-wallet
-      def add_payment_source(params, source, options={})
-        case determine_funding_source(source)
-        when :cc then add_creditcard(params, source, options)
+      def add_payment_source(post, source, options={})
+        if options.has_key? :clearingtype and !options[:clearingtype].nil?
+          case options[:clearingtype]
+          when "cc" then add_creditcard(post, source, options)
+          when "elv" then add_direct_debit(post, source, options)
+          end
+        elsif CreditCard.card_companies.keys.include?(card_brand(source))
+          add_creditcard(post, source, options)
+        else
+          raise ArgumentError, "Unsupported funding source provided"
         end
       end
 
@@ -164,6 +171,19 @@ module ActiveMerchant #:nodoc:
         post[:cardcvc2] = creditcard.verification_value if creditcard.verification_value?
         post[:firstname] = creditcard.first_name
         post[:lastname]  = creditcard.last_name
+      end
+
+      # Its expected to have and object like CreditCard for holding required data
+      # for direct debit payment method, but we can also think if we realy need it
+      # because we can use a hash object - we have no logic for DirectDebit
+      # like number verification or country
+      def add_direct_debit(post, source, options)
+        post[:clearingtype] = 'elv'
+        post[:firstname] = source.first_name
+        post[:lastname]  = source.last_name
+        post[:bankaccount] = source.account_number
+        post[:bankcountry] = source.country if ["DE", "AT", "NL"].include? source.country.to_s
+        post[:bankcode]    = source.sort_code if ["DE", "AT"].include? source.country.to_s
       end
 
       def parse(body)
@@ -222,13 +242,6 @@ module ActiveMerchant #:nodoc:
 
         request = post.merge(parameters).map {|key,value| "#{key}=#{CGI.escape(value.to_s)}"}.join("&")
         request
-      end
-
-      def determine_funding_source(source)
-        case
-        when CreditCard.card_companies.keys.include?(card_brand(source)) then :cc
-        else raise ArgumentError, "Unsupported funding source provided"
-        end
       end
 
       def expdate(creditcard)
