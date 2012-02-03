@@ -7,7 +7,7 @@ module ActiveMerchant #:nodoc:
       URL            = 'https://api.pay1.de/post-gateway/'
       ECOMMERCE_MODE = ['internet', '3dsecure', 'moto']
       CARDTYPE       = {
-        :visa => 'V', :master => 'M', :jsb => 'J', :american_express => 'A',
+        :visa => 'V', :master => 'M', :jcb => 'J', :american_express => 'A',
         :discover => 'C', :maestro => 'O', :diners_club => 'D'
       }
       AVS_MESSAGES   = {
@@ -20,7 +20,7 @@ module ActiveMerchant #:nodoc:
 
       # The card types supported by the payment gateway
       self.supported_cardtypes = [
-        :visa, :master, :american_express, :discover, :jsb, :maestro, :diners_club
+        :visa, :master, :american_express, :discover, :jcb, :maestro, :diners_club
       ]
 
       # The countries the gateway supports merchants from as 2 digit ISO country codes
@@ -162,7 +162,8 @@ module ActiveMerchant #:nodoc:
       end
 
       def add_creditcard(post, creditcard, options)
-        card_type = creditcard.brand || creditcard.type
+        card_type = creditcard.try(:brand) || creditcard.try(:type) || nil
+        raise ArgumentError, "Unsupported credit card type" if card_type.nil?
 
         post[:clearingtype] = 'cc'
         post[:cardpan]  = creditcard.number
